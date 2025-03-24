@@ -22,51 +22,34 @@ struct ContentView: View {
                 .padding()
             
             Canvas { context, size in
-                // 그리드 라인 그리기
-                for row in 0...rows {
+                // 모래와 그리드를 한 번에 그리기
+                for row in 0..<rows {
                     let y = CGFloat(row) * cellSize
                     
-                    let startPoint = CGPoint(x: 0, y: y)
-                    let endPoint = CGPoint(x: CGFloat(columns) * cellSize, y: y)
-                    
-                    var path = Path()
-                    path.move(to: startPoint)
-                    path.addLine(to: endPoint)
-                    context.stroke(path, with: .color(.gray), lineWidth: 0.5)
-                }
-                
-                for column in 0...columns {
-                    let x = CGFloat(column) * cellSize
-                    
-                    let startPoint = CGPoint(x: x, y: 0)
-                    let endPoint = CGPoint(x: x, y: CGFloat(rows) * cellSize)
-                    
-                    var path = Path()
-                    path.move(to: startPoint)
-                    path.addLine(to: endPoint)
-                    context.stroke(path, with: .color(.gray), lineWidth: 0.5)
-                }
-                
-                // 모래 그리기
-                for row in 0..<grid.count {
-                    for column in 0..<(grid[row].count) {
+                    for column in 0..<columns {
+                        let x = CGFloat(column) * cellSize
+                        let rect = CGRect(
+                            x: x,
+                            y: y,
+                            width: cellSize,
+                            height: cellSize
+                        )
+                        
+                        // 모래 채우기 (더 먼저 그려서 그리드 라인이 위에 오도록)
                         if grid[row][column] == 1 {
-                            let rect = CGRect(
-                                x: CGFloat(column) * cellSize,
-                                y: CGFloat(row) * cellSize,
-                                width: cellSize,
-                                height: cellSize
-                            )
-                            
                             context.fill(Path(rect), with: .color(.green))
                         }
+                        
+                        // 셀 테두리 그리기 (각 셀의 테두리만 그림)
+                        var cellPath = Path()
+                        cellPath.addRect(rect)
+                        context.stroke(cellPath, with: .color(.gray), lineWidth: 0.5)
                     }
                 }
             }
             .frame(width: CGFloat(columns) * cellSize, height: CGFloat(rows) * cellSize)
             .background(Color.black)
             .border(Color.white)
-
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
@@ -76,11 +59,10 @@ struct ContentView: View {
     }
     
     private func initGrid() {
-        var newGrid = Array(repeating: Array(repeating: 0, count: rows), count: columns)
+        var newGrid = Array(repeating: Array(repeating: 0, count: columns), count: rows)
         
         newGrid[10][20] = 1
         grid = newGrid
-        
     }
 }
 
