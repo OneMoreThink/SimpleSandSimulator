@@ -21,7 +21,7 @@ struct ContentView: View {
     
     var body: some View {
         VStack {
-            Text("모래 떨어뜨리기")
+            Text("사용자 인터렉션 추가")
                 .font(.largeTitle)
                 .padding()
             
@@ -54,6 +54,19 @@ struct ContentView: View {
             .frame(width: CGFloat(columns) * cellSize, height: CGFloat(rows) * cellSize)
             .background(Color.black)
             .border(Color.white)
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in
+                        // 드래그 위치에 모래 추가
+                        let x = Int(value.location.x / cellSize)
+                        let y = Int(value.location.y / cellSize)
+                        
+                        if x >= 0 && x < columns && y >= 0 && y < rows {
+                            grid[y][x] = 1
+                        }
+                    }
+            )
+            
             
             HStack{
                 Button(isPaused ? "Resume" :"Pause"){
@@ -87,7 +100,7 @@ struct ContentView: View {
     }
     
     private func startSimulation() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { _ in
             updateGrid()
         })
     }
